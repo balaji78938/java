@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        
+        .question {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Quiz App</h1>
+    <div id="quiz-container"></div>
+    <button id="submit">Submit Answers</button>
+    <div id="result"></div>
+
+    <script>
+        let questions = [];
+        let score = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/quiz/questions')
+                .then(response => response.json())
+                .then(data => {
+                    questions = data;
+                    displayQuestions();
+                });
+
+            document.getElementById('submit').addEventListener('click', calculateScore);
+        });
+
+        function displayQuestions() {
+            const container = document.getElementById('quiz-container');
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question');
+                questionDiv.innerHTML = `<p>${q.question}</p>`;
+                q.options.forEach((option, i) => {
+                    questionDiv.innerHTML += `<input type="radio" name="question${index}" value="${option}"> ${option}<br>`;
+                });
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function calculateScore() {
+            questions.forEach((q, index) => {
+                const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+                if (selectedOption && selectedOption.value === q.answer) {
+                    score++;
+                }
+            });
+            document.getElementById('result').innerHTML = `Your score: ${score} out of ${questions.length}`;
+        }
+    </script>
+</body>
+
+</html>
